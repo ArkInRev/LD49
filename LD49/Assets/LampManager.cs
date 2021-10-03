@@ -65,7 +65,10 @@ public class LampManager : MonoBehaviour
     }
 
 
-
+    public void OnDisable()
+    {
+        GameManager.Instance.onButtonToggle -= OnLampChanged;
+    }
 
 
 }

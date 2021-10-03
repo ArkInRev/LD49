@@ -47,4 +47,9 @@ public class ButtonManager : MonoBehaviour
             // do other things
         }
     }
+
+    public void OnDisable()
+    {
+        GameManager.Instance.onButtonToggle -= OnButtonChanged;
+    }
 }
