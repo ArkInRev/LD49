@@ -165,6 +165,27 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region warning 
+    [SerializeField]
+    private MeshRenderer coolantWarningLight;
+    private bool coolantWarningLightStatus = false;
+    [SerializeField]
+    private MeshRenderer tempWarningLight;
+    private bool tempWarningLightStatus = false;
+    [SerializeField] 
+    private MeshRenderer wasteWarningLight;
+    private bool wasteWarningLightStatus = false;
+    [SerializeField] 
+    private MeshRenderer contaminantWarningLight;
+    private bool contaminantWarningLightStatus = false;
+    [SerializeField] 
+    private MeshRenderer o2WarningLight;
+    private bool o2WarningLightStatus = false;
+    [SerializeField]
+    private MeshRenderer pressureWarningLight;
+    private bool pressureWarningLightStatus = false;
+    #endregion
+
 
     private void Awake()
     {
@@ -225,6 +246,7 @@ public class GameManager : MonoBehaviour
             heatHandler(); // heating and cooling calculated.
             distanceHandler();
             aiInterferenceHandler();
+            warningHandler();
 
 
 
@@ -569,6 +591,77 @@ public class GameManager : MonoBehaviour
 
             aiInterfereCounter += 1; //increment the interfere counter always when interfering;
         }
+    }
+
+    private void warningHandler()
+    {
+        string shaderBool = "Boolean_8d8df0a7f45e43cd96be06fbc8f1e01f";
+
+        // Coolant too low
+        if (GetShipPower() > _coolantReactorFlow)
+        {
+            coolantWarningLightStatus = true;
+            coolantWarningLight.materials[1].SetFloat(shaderBool,1f);
+        } else
+        {
+            coolantWarningLightStatus = false;
+            coolantWarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+        // Temp
+        if (_coreTemp / _coreEffectiveMeltTemp > .75)
+        {
+            tempWarningLightStatus = true;
+            tempWarningLight.materials[1].SetFloat(shaderBool, 1f);
+        } else
+        {
+            tempWarningLightStatus = false;
+            tempWarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+        //O2 levels
+        if (o2/o2Max < .75)
+        {
+            o2WarningLightStatus = true;
+            o2WarningLight.materials[1].SetFloat(shaderBool, 1f);
+        }
+        else
+        {
+            o2WarningLightStatus = false;
+            o2WarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+        //Waste
+        if (_coreWasteMass/_coreMass > .1)
+        {
+            wasteWarningLightStatus = true;
+            wasteWarningLight.materials[1].SetFloat(shaderBool, 1f);
+        }
+        else
+        {
+            wasteWarningLightStatus = false;
+            wasteWarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+        //Contaminant
+        if (_coolantContaminant/_coolantCistern > .1)
+        {
+            contaminantWarningLightStatus = true;
+            contaminantWarningLight.materials[1].SetFloat(shaderBool, 1f);
+        }
+        else
+        {
+            contaminantWarningLightStatus = false;
+            contaminantWarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+        //pressure
+        if (_pressureCurrent > ( _pressureStandard *1.05))
+        {
+            pressureWarningLightStatus = true;
+            pressureWarningLight.materials[1].SetFloat(shaderBool, 1f);
+        }
+        else
+        {
+            pressureWarningLightStatus = false;
+            pressureWarningLight.materials[1].SetFloat(shaderBool, 0f);
+        }
+
     }
 
     #endregion
