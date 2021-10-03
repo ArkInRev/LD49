@@ -11,6 +11,7 @@ public class AudioManager : MonoBehaviour
 
     public Sound[] sounds;
 
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -30,6 +31,7 @@ public class AudioManager : MonoBehaviour
             s.source.volume = s.volume;
             s.source.pitch = s.pitch;
             s.source.loop = s.loop;
+            s.source.playOnAwake = false;
         }
     }
 
@@ -45,4 +47,27 @@ public class AudioManager : MonoBehaviour
         }
 
     }
+
+    public void Stop(string name)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        if (s == null)
+        {
+            return;
+        }
+        else
+        {
+            s.source.Stop();
+        }
+
+    }
+
+    public void StopAll()
+    {
+        foreach (Sound s in sounds)
+        {
+            s.source.Stop();
+        }
+    }
+
 }

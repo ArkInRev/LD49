@@ -137,11 +137,30 @@ public class GameManager : MonoBehaviour
     #region Scripted Start
     private bool stillScripted = true;
     private int scriptStep = 0;
+    private int scriptAudioStep = 0;
     [SerializeField]
     private CanvasGroup titleCG;
     private float titleWaitFade = 5f;
     [SerializeField]
     private CanvasGroup stasisWarning;
+
+
+    #endregion
+
+    #region AI Interfere
+
+    private bool aiInterfere = false;
+    private bool aiWaitFirstInterfere = true;
+    private float aiFirstInterfere = 10f;
+    private float aiLowInterfere = 3f;
+    private float aiHighInterfere = 20f;
+    private float aiInterfereCounter = 0f;
+
+    private bool resetFadeTimer = false;
+    private bool doNotFade = false;
+
+    [SerializeField]
+    private TMP_Text aiVoiceline;
 
 
     #endregion
@@ -189,6 +208,11 @@ public class GameManager : MonoBehaviour
 
         if (stillScripted) { scriptedStart(); }
 
+        if (resetFadeTimer)
+        {
+            resetFadeTimer = false;
+            fadeDuration = 2.5f;
+        }
 
         _tickElapsed += Time.fixedDeltaTime;
         if (_tickElapsed >= (1 / _ticksPerSecond))
@@ -200,6 +224,7 @@ public class GameManager : MonoBehaviour
             coolantHandler(); // coolant flow handling
             heatHandler(); // heating and cooling calculated.
             distanceHandler();
+            aiInterferenceHandler();
 
 
 
@@ -236,38 +261,111 @@ public class GameManager : MonoBehaviour
                         titleCG.blocksRaycasts = false;
                         SetScriptStep(1);
                     }
+                    if (scriptAudioStep == 0)
+                    {
+                        AudioManager.Instance.Play("stage0");
+                    }
+                    SetAudioScriptStep(1);
                     break;
                 case 1://turn on the desk lamp
-                    Debug.Log("Waiting to turn on desk lamp.");
-
+                    //Debug.Log("Waiting to turn on desk lamp.");
+                    aiVoiceline.text = "These obsolete  models, I should just factory reset.. Oh, there you are. Try turning on your little desk lamp.";
+                    if (scriptAudioStep == 1)
+                    {
+                        AudioManager.Instance.Stop("stage0");
+                        AudioManager.Instance.Play("stage1");
+                    }
+                    SetAudioScriptStep(2);
                     break;
                 case 2://move head
-                    Debug.Log("Waiting to move your head.");
+                    //Debug.Log("Waiting to move your head.");
+                    aiVoiceline.text = "That did it. Now, if you right click and drag with those boney-phellange, you can move your central processing coconut from side to side";
+                    if (scriptAudioStep == 2)
+                    {
+                        AudioManager.Instance.Stop("stage1"); 
+                        AudioManager.Instance.Play("stage2");
+                    }
+                    SetAudioScriptStep(3);
                     break;
                 case 3://turn on control room lights
-                    Debug.Log("Waiting to turn on control room lights.");
+                    //Debug.Log("Waiting to turn on control room lights.");
+                    aiVoiceline.text = "We have mobility. Now, to your far right, see if you can left click the main light switch to the control room.";
+                    if (scriptAudioStep == 3)
+                    {
+                        AudioManager.Instance.Stop("stage2");
+                        AudioManager.Instance.Play("stage3");
+                    }
+                    SetAudioScriptStep(4);
                     break;
                 case 4://turn on the reactor lights
-                    Debug.Log("Waiting to turn on reactor lights.");
+                    //Debug.Log("Waiting to turn on reactor lights.");
+                    aiVoiceline.text = "This thing takes forever to boot up. Try the button on the left of the control panel. Toggle it with your squishy pseuodopod";
+                    if (scriptAudioStep == 4)
+                    {
+                        AudioManager.Instance.Stop("stage3");
+                        AudioManager.Instance.Play("stage4");
+                    }
+                    SetAudioScriptStep(5); 
                     break;
                 case 5://slide C
-                    Debug.Log("Waiting to slide Coolant Power.");
+                    //Debug.Log("Waiting to slide Coolant Power.");
+                    aiVoiceline.text = "Swell. Before we drop the stasis field. you should raise the C slider up just a little bit to create a demand for power to the coolant.";
+                    if (scriptAudioStep == 5)
+                    {
+                        AudioManager.Instance.Stop("stage4");
+                        AudioManager.Instance.Play("stage5");
+                    }
+                    SetAudioScriptStep(6);
                     break;
                 case 6://slide P
-                    Debug.Log("Waiting to slide open pressure vent.");
+                    //Debug.Log("Waiting to slide open pressure vent.");
+                    aiVoiceline.text = "Reactor cores are hot. Hot is bad. Splashing coolant on hot things raises pressure, which… I’m not explaining thermodynamics, just vent some of the pressure with the P slider on the far right.";
+                    if (scriptAudioStep == 6)
+                    {
+                        AudioManager.Instance.Stop("stage5");
+                        AudioManager.Instance.Play("stage6");
+                    }
+                    SetAudioScriptStep(7);
                     break;
                 case 7://slide E
-                    Debug.Log("Waiting to slide Engine Power.");
+                    //Debug.Log("Waiting to slide Engine Power.");
+                    aiVoiceline.text = "You didn’t leave that wide open did you? Oh well, I’m backed up. More E for engines. Engines get you home, but that calls for more power. Give it a little nudge. The Home counter will count down when we are out of stasis.";
+                    if (scriptAudioStep == 7)
+                    {
+                        AudioManager.Instance.Stop("stage6");
+                        AudioManager.Instance.Play("stage7");
+                    }
+                    SetAudioScriptStep(8);
                     break;
                 case 8://slide L
-                    Debug.Log("Waiting to slide life support.");
+                    //Debug.Log("Waiting to slide life support.");
+                    aiVoiceline.text = "That’s right, more power, more heat. Anyway, small movements first, then you can be more bold. You might want to knock the life support power up a tick, just to be safe.";
+                    if (scriptAudioStep == 8)
+                    {
+                        AudioManager.Instance.Stop("stage7");
+                        AudioManager.Instance.Play("stage8");
+                    }
+                    SetAudioScriptStep(9);
                     break;
                 case 9://press Fortify Core
-                    Debug.Log("Waiting to fortify core.");
+                    //Debug.Log("Waiting to fortify core.");
+                    aiVoiceline.text = "The Oxygen from the vent is good for you. Too little makes it hard to focus, but it costs power. Slap the Fortify Core button on the right wall. That will keep cooking the core while it reduces waste.";
+                    if (scriptAudioStep == 9)
+                    {
+                        AudioManager.Instance.Stop("stage8");
+                        AudioManager.Instance.Play("stage9");
+                    }
+                    SetAudioScriptStep(10);
                     break;
                 case 10://turn on the desk lamp
-                    Debug.Log("Waiting...");
-
+                    //Debug.Log("Waiting...");
+                    aiVoiceline.text = "Dropping Stasis. Looks like you have this under control. Fortify will help restore core integrity and reduce core mass waste. Flushing the coolant… wait… why am I reading you the emergency control arm manual? Your progenitors wrote the thing!";
+                    if (scriptAudioStep == 10)
+                    {
+                        AudioManager.Instance.Stop("stage9");
+                        AudioManager.Instance.Play("stage10");
+                    }
+                    SetAudioScriptStep(11);
                     //do final script function to start the game cycle;
                     EndStasisField();
 
@@ -280,13 +378,24 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private void EndStasisField()
+    public void EndStasisField()
     {
         //float stasisPauseTime = 27f;
         //StartCoroutine(DoStasisWait(stasisPauseTime));
+        stillScripted = false;
+        scriptAudioStep = 11;
+        scriptStep = 11;
+        fadeDuration = 0;
         resetStartValues();
         SetScriptStep(11);
+        titleCG.alpha = 0;
+        titleCG.interactable = false;
+        titleCG.blocksRaycasts = false;
         stillScripted = false;
+        aiInterfere = true;
+        aiWaitFirstInterfere = true;
+        doNotFade = true;
+        resetFadeTimer = true;
     }
 
     public IEnumerator DoStasisWait(float pauseTime)
@@ -314,6 +423,11 @@ public class GameManager : MonoBehaviour
         stasisWarning.alpha = 0;
         controlArmButtonStatuses[3] = false;
         controlArmChange(13);
+        stillScripted = false;
+        aiInterfere = true;
+        aiInterfereCounter = 0;
+        aiWaitFirstInterfere = true;
+
     }
 
     #region Handlers
@@ -422,6 +536,147 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void aiInterferenceHandler()
+    {
+        if (aiInterfere) //only process if AI is interfering
+        {
+            if (aiWaitFirstInterfere) // give the player a delayed time before the AI first interferes with them
+            {
+                if (aiInterfereCounter > aiFirstInterfere)
+                {
+                    //we're done waiting
+                    aiVoiceline.text = "";
+                    aiWaitFirstInterfere = false;
+                    aiInterfereCounter = 0;
+                }
+            } else // begin the normal interference
+            {
+                // check if there should be interference
+                //if so, call AIInterfere();
+                float lerpedInterfereInterval = Mathf.Lerp(aiLowInterfere,aiHighInterfere,aiSlider.value);
+                if (aiInterfereCounter >= lerpedInterfereInterval)
+                {
+                    //we've waited longer than the slider indicates for interaction
+                    AIInterfere();
+                    aiInterfereCounter = 0;
+
+                }
+
+
+            }
+
+
+
+            aiInterfereCounter += 1; //increment the interfere counter always when interfering;
+        }
+    }
+
+    #endregion
+
+    #region AI Interference
+    private void AIInterfere() 
+    {
+        int intCount = 11;
+        
+        //This does some interaction randomly selected.
+        Debug.Log("Interfering");
+        int interferenceID = UnityEngine.Random.Range(1, intCount);
+        AudioManager.Instance.StopAll();
+
+        switch (interferenceID)
+        {
+            case 1: //toggle desk lamp
+                pressDeskLampButton();
+                AudioManager.Instance.Play("int1");
+                aiVoiceline.text = "I’m not sure what this does.";
+                break;
+            case 2:
+                pressControlRoomLightsButton();
+                AudioManager.Instance.Play("int2");
+                aiVoiceline.text = "Why do you need these?";
+                break;
+            case 3:
+                pressReactorRoomLightsButton();
+                AudioManager.Instance.Play("int3");
+                aiVoiceline.text = "Fuel cores don’t need lights";
+                break;
+            case 4:
+                engineSlider.value = (float)UnityEngine.Random.Range(0, 1);
+                enginePowerChange();
+                AudioManager.Instance.Play("int4");
+                aiVoiceline.text = "Are we in a hurry?";
+                break;
+            case 5:
+                lifeSupportSlider.value = (float)UnityEngine.Random.Range(0, 1);
+                lifeSupportPowerChange();
+                AudioManager.Instance.Play("int5");
+                aiVoiceline.text = "How much oxygen do these things need?";
+                break;
+            case 6:
+                aiSlider.value = (float)UnityEngine.Random.Range(0, 1);
+                aiPowerChange();
+                AudioManager.Instance.Play("int6");
+                aiVoiceline.text = "I feel… different";
+                break;
+            case 7:
+                coolantSlider.value = (float)UnityEngine.Random.Range(0, 1);
+                coolantPowerChange();
+                AudioManager.Instance.Play("int7");
+                aiVoiceline.text = "Wash the core, Wash the core, washing washing washing.";
+                break;
+            case 8:
+                pressureSlider.value = (float)UnityEngine.Random.Range(0, 1);
+                pressureValveChange();
+                AudioManager.Instance.Play("int8");
+                aiVoiceline.text = "I can feel the lightspeed through my peripherals.";
+                break;
+            case 9:
+                int caButtonInterfere = UnityEngine.Random.Range(10, 13);
+                controlArmChange(caButtonInterfere);
+                switch (caButtonInterfere)
+                {
+                    case 10:
+                        AudioManager.Instance.Play("int9a");
+                        aiVoiceline.text = "Zzzzap... zap zapp... zappity zap.";
+                        break;
+                    case 11:
+                        AudioManager.Instance.Play("int9b");
+                        aiVoiceline.text = "What a waste of coolant.";
+                        break;
+                    case 12:
+                        AudioManager.Instance.Play("int9c");
+                        aiVoiceline.text = "It’s getting hot in here.";
+                        break;
+                    case 13:
+                        AudioManager.Instance.Play("int9d");
+                        aiVoiceline.text = "Reviewing your work ethic, comrade";
+                        break;
+                    default:
+                        break;
+                }
+                
+                
+                break;
+
+            case 10:
+                lifeSupportSlider.value = 0;
+                lifeSupportPowerChange();
+                AudioManager.Instance.Play("int10");
+                aiVoiceline.text = "This place is too full of O2.";
+                break;
+            case 11:
+                lifeSupportSlider.value = 1;
+                lifeSupportPowerChange();
+                AudioManager.Instance.Play("int11");
+                aiVoiceline.text = "Don't pass out, little buddy.";
+                break;
+
+            default:
+                break;
+
+        }
+
+    }
     #endregion
 
 
@@ -478,26 +733,34 @@ public class GameManager : MonoBehaviour
 
     private void GameLostEndScreen(int reason)
     {
+        Time.timeScale = 0;
+        AudioManager.Instance.StopAll();
+        doNotFade = false;
         switch (reason)
         {
             case 1:
+                AudioManager.Instance.Play("lose1");
                 loseScreenTitle.text = "Meltdown!";
                 loseScreenAITaunt.text = "If you had just kept your meaty appendages off of the controls I would have gotten us home. I hope you can do a restore from amino acids. Oops, gotta go. My new processor just arrived.";
                 break;
             case 2:
+                AudioManager.Instance.Play("lose2");
                 loseScreenTitle.text = "Reactor Core is Useless!";
                 loseScreenAITaunt.text = "I should have expected carbon-based life forms to incinerate themselves with their fuel. You burned the fuel core until it was complete waste. Bad habits I guess.";
                 break;
             case 3:
+                AudioManager.Instance.Play("lose3");
                 loseScreenTitle.text = "Coolant is Fully Contaminated!";
                 loseScreenAITaunt.text = "They write an algorithm to approximate intelligence and still repeat their mistakes. Maybe next time if I put cute marine life in the coolant, you'll think twice.";
                 break;
             case 4:
+                AudioManager.Instance.Play("lose4");
                 loseScreenTitle.text = "Containment Breach!";
                 loseScreenAITaunt.text = "You should not exceed three times the standard 1000 MPa. 2 times is fine, so long as you do not proceed to 3 times. 5 times the pressure standard is right out.";
                 break;
 
         }
+        _ticksPerSecond = 0.01f;
         loseScreenDistance.text = _distanceHome.ToString() + "LY to Go";
         loseCG.blocksRaycasts = true;
         loseCG.interactable = true;
@@ -519,6 +782,9 @@ public class GameManager : MonoBehaviour
     private void GameWinScreen()
     {
         Time.timeScale = 0;
+        AudioManager.Instance.StopAll();
+        AudioManager.Instance.Play("win");
+        doNotFade = false;
         //string titleMessage = "You made it Home!";
         //string AITaunt = "Well congratulations, I suppose. You made it home and delivered an unstable AI to the unsuspecting population. See you soon!";
         //Debug.Log("Loading win screen.");
@@ -544,6 +810,16 @@ public class GameManager : MonoBehaviour
         //Debug.Log("In Coroutine.");
         while (counter < fadeDuration)
         {
+            if (resetFadeTimer)
+            {
+                cg.alpha = end;
+                yield break;
+            }
+            if (doNotFade)
+            {
+                cg.alpha = end;
+                yield break;
+            }
             counter += Time.unscaledDeltaTime;
             //Debug.Log("counter: "+counter.ToString()+" start, end, lerp "+start.ToString()+" "+end.ToString()+" "+counter/fadeDuration);
             cg.alpha = Mathf.Lerp(start, end, counter / fadeDuration);
@@ -554,10 +830,30 @@ public class GameManager : MonoBehaviour
     public IEnumerator DoPauseFade(CanvasGroup cg, float start, float end, float pauseTime)
     {
         yield return new WaitForSeconds(pauseTime);
+        if (resetFadeTimer)
+        {
+            resetFadeTimer = false;
+            fadeDuration = 2.5f;
+            yield break;
+        }
+        if (doNotFade)
+        {
+            cg.alpha = end;
+            yield break;
+        }
         float counter = 0f;
         //Debug.Log("In Coroutine.");
         while (counter < fadeDuration)
         {
+            if (resetFadeTimer)
+            {
+                cg.alpha = end;
+                yield break;
+            }
+            if (doNotFade)
+            {
+                yield break;
+            }
             counter += Time.unscaledDeltaTime;
             //Debug.Log("counter: "+counter.ToString()+" start, end, lerp "+start.ToString()+" "+end.ToString()+" "+counter/fadeDuration);
             cg.alpha = Mathf.Lerp(start, end, counter / fadeDuration);
@@ -593,7 +889,7 @@ public class GameManager : MonoBehaviour
         stasisWarning.alpha = 1;
         controlArmButtonStatuses[3] = false;
         controlArmChange(13);
-
+        aiVoiceline.text = "";
 
 
 
@@ -610,6 +906,7 @@ public class GameManager : MonoBehaviour
     public event Action<int,bool> onButtonToggle;
     public void ButtonToggle(int buttonID, bool buttonState)
     {
+        AudioManager.Instance.Play("click");
         if(onButtonToggle != null)
         {
             onButtonToggle(buttonID, buttonState);
@@ -645,6 +942,7 @@ public class GameManager : MonoBehaviour
     public event Action<int, float> onSliderChange;
     public void SliderChange(int sliderID, float amount)
     {
+        AudioManager.Instance.Play("click2");
         if (onSliderChange != null)
         {
             onSliderChange(sliderID, amount);
@@ -956,6 +1254,10 @@ public class GameManager : MonoBehaviour
     public void SetScriptStep(int setSS)
     {
         scriptStep = setSS;
+    }
+    public void SetAudioScriptStep(int setSS)
+    {
+        scriptAudioStep = setSS;
     }
 
     #region Game Over Events
