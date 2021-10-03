@@ -33,6 +33,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             mouseLook += (Input.GetAxisRaw("Mouse X") * turnSpeed);
+            if (((Input.GetAxisRaw("Mouse X") * turnSpeed)>1)&&(GameManager.Instance.GetScriptStep()==2))
+            {
+                GameManager.Instance.SetScriptStep(3);
+            }
         }
     
 

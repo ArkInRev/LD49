@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviour
     public TMP_Text lifeSupportPowerText;
     public TMP_Text aiPowerText;
     public TMP_Text coolantPowerText;
+    public TMP_Text caPowerText;
     public TMP_Text wastePowerText;
 
 
@@ -61,6 +62,7 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.onLifeSupportPowerChange += OnLifeSupportPowerChange;
         GameManager.Instance.onAIPowerChange += OnAIPowerChange;
         GameManager.Instance.onCoolantPowerChange += OnCoolantPowerChange;
+        GameManager.Instance.onPressureValveChange += OnPressureChange;
         GameManager.Instance.onCoreTempChange += OnCoreTempChange;
         GameManager.Instance.onCoolantFlowChange += OnCoolantFlowChange;
         GameManager.Instance.onWasteChange += OnWasteChange;
@@ -81,7 +83,8 @@ public class UIManager : MonoBehaviour
     private void OnPowerChange()
     {
         shipPowerText.text = "Power: " + GameManager.Instance.GetShipPower().ToString("F3") + "GWph";
-        wastePowerText.text = "Waste: " + GameManager.Instance.GetWastePower().ToString("F3") + "GWph";
+        caPowerText.text = "Arm: " + GameManager.Instance.GetCAPower().ToString("F3") + "GWph";
+        wastePowerText.text = "Loss: " + GameManager.Instance.GetWastePower().ToString("F3") + "GWph";
 
 
     }
@@ -93,6 +96,10 @@ public class UIManager : MonoBehaviour
     private void OnCoolantPowerChange()
     {
         coolantPowerText.text = "Coolant: " + GameManager.Instance.GetCoolantPower().ToString("F3") + "GWph";
+    }
+    private void OnPressureChange()
+    {
+        pressureCurrentText.text = "Pressure: " + GameManager.Instance.GetPressure().ToString("F3") + "MPA";
     }
 
     private void OnCoreTempChange()
@@ -142,6 +149,7 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.onLifeSupportPowerChange -= OnLifeSupportPowerChange;
         GameManager.Instance.onAIPowerChange -= OnAIPowerChange;
         GameManager.Instance.onCoolantPowerChange -= OnCoolantPowerChange;
+        GameManager.Instance.onPressureValveChange -= OnPressureChange;
         GameManager.Instance.onCoreTempChange -= OnCoreTempChange;
         GameManager.Instance.onCoolantFlowChange -= OnCoolantFlowChange;
         GameManager.Instance.onWasteChange -= OnWasteChange;
@@ -149,4 +157,5 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.onDistanceChange -= OnDistanceChange;
 
     }
+
 }
